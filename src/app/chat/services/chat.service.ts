@@ -162,5 +162,10 @@ export class ChatService {
     );
   }
   
+  // Dans chat.service.ts
+getUserById(userId: string): Observable<any> {
+  return this.db.object(`/users/${userId}`).valueChanges();
+}
+
 
 }

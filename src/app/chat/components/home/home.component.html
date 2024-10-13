@@ -35,9 +35,10 @@
       <h2 class="mt-4">Messages privés avec {{ selectedUser?.displayName }}</h2>
       <div class="border p-3 mb-4" style="height: 200px; overflow-y: auto;">
         <div *ngFor="let msg of privateMessages">
-          <strong>{{ msg.senderId }}:</strong> {{ msg.text }}
+            <strong>{{ userNames[msg.senderId] || msg.senderId }}:</strong> {{ msg.text }}
         </div>
-      </div>
+    </div>
+    
       <div class="input-group">
         <input [(ngModel)]="privateMessage" class="form-control" placeholder="Envoyer un message privé" />
         <button class="btn btn-success" (click)="sendPrivateMessage()">Envoyer</button>
@@ -54,6 +55,11 @@
   
         <!-- Affichage des membres du groupe uniquement si le groupe est sélectionné -->
         <div *ngIf="selectedGroup && selectedGroup.key === group.key" class="mt-2">
+          <h4>Ajouter un membre par son nom :</h4>
+          <div class="input-group mb-3">
+            <input [(ngModel)]="newMemberName" class="form-control" placeholder="Nom de l'utilisateur" />
+            <button class="btn btn-primary" (click)="addMemberByName()">Ajouter</button>
+          </div>
           <h4>Membres du groupe :</h4>
           <ul class="list-group">
             <li *ngFor="let memberDisplayName of group.membersDisplayNames" class="list-group-item">
@@ -74,18 +80,15 @@
     <h2 *ngIf="selectedGroup">Messages du groupe {{ selectedGroup?.name }}</h2>
     <div *ngIf="selectedGroup" class="border p-3 mb-4" style="height: 200px; overflow-y: auto;">
       <div *ngFor="let groupMsg of groupMessages">
-        <strong>{{ groupMsg.senderId }}:</strong> {{ groupMsg.text }}
+          <strong>{{ userNames[groupMsg.senderId] || groupMsg.senderId }}:</strong> {{ groupMsg.text }}
       </div>
-    </div>
+  </div>
+  
     <div *ngIf="selectedGroup" class="input-group">
       <input [(ngModel)]="groupMessage" class="form-control" placeholder="Envoyer un message au groupe" />
       <button class="btn btn-success" (click)="sendGroupMessage()">Envoyer</button>
     </div>
-    <h4>Ajouter un membre par son nom :</h4>
-    <div class="input-group mb-3">
-      <input [(ngModel)]="newMemberName" class="form-control" placeholder="Nom de l'utilisateur" />
-      <button class="btn btn-primary" (click)="addMemberByName()">Ajouter</button>
-    </div>
+
   </div>
   
   

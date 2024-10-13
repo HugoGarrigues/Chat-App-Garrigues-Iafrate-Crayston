@@ -19,6 +19,7 @@ export class HomeComponent implements OnInit {
   onlineUsers: any[] = [];  // Stocker les utilisateurs en ligne
   selectedUser: any = null;  // Utilisateur sélectionné pour la messagerie privée
   offlineUsers: any[] = [];  // Stocker les utilisateurs hors ligne
+  userNames: { [key: string]: string } = {}; 
 
   // Propriétés pour la gestion des groupes
   groups: any[] = [];
@@ -81,9 +82,21 @@ export class HomeComponent implements OnInit {
 
   loadGroupMessages(groupId: string) {
     this.chatService.getGroupMessages(groupId).subscribe(messages => {
-      this.groupMessages = messages;
+        this.groupMessages = messages;
+        this.loadUserNamesForGroup(messages);  // Charger les noms d'utilisateur pour les messages du groupe
     });
-  }
+}
+
+
+loadUserNamesForGroup(messages: any[]) {
+  const userIds = new Set(messages.map(msg => msg.senderId));
+
+  userIds.forEach(id => {
+      this.chatService.getUserById(id).subscribe(user => {
+          this.userNames[id] = user.displayName;  // Stocker le nom d'utilisateur
+      });
+  });
+}
 
   sendGroupMessage() {
     if (this.groupMessage.trim() !== '' && this.selectedGroup) {
@@ -131,9 +144,23 @@ export class HomeComponent implements OnInit {
   selectUser(user: any) {
     this.selectedUser = user;
     this.chatService.getPrivateMessages(this.user.uid, user.uid).subscribe(messages => {
-      this.privateMessages = messages;
+        this.privateMessages = messages;
+        this.loadUserNames(messages);  // Charger les noms des utilisateurs
     });
-  }
+}
+
+loadUserNames(messages: any[]) {
+  // Parcourir les messages pour charger les noms d'utilisateur
+  const userIds = new Set(messages.map(msg => msg.senderId));
+  userIds.add(this.user.uid);  // Ajouter l'ID de l'utilisateur connecté
+
+  // Récupérer les informations de chaque utilisateur concerné
+  userIds.forEach(id => {
+      this.chatService.getUserById(id).subscribe(user => {
+          this.userNames[id] = user.displayName;  // Stocker le nom d'utilisateur
+      });
+  });
+}
 
   sendPrivateMessage() {
     if (this.privateMessage.trim() !== '' && this.selectedUser) {
@@ -195,6 +222,8 @@ addMemberByName() {
     });
   }
 }
+
+
 
 
 }
