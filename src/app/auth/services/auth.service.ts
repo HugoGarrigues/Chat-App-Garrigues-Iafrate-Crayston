@@ -15,26 +15,36 @@ export class AuthService {
 
   // Sign up with email, password, and pseudo
   signUp(email: string, password: string, pseudo: string) {
+    if (!email || !password || !pseudo) {
+      console.error('Email, password, and pseudo must be provided');
+      return Promise.reject('Invalid input');
+    }
+  
     return this.afAuth.createUserWithEmailAndPassword(email, password)
       .then(userCredential => {
         const user = userCredential.user;
-
-        // Après la création de l'utilisateur, mettre à jour le profil avec le pseudo
-        return user?.updateProfile({
-          displayName: pseudo
-        }).then(() => {
-          // Enregistrer l'utilisateur dans la base de données
-          return this.db.object(`/users/${user.uid}`).set({
-            displayName: pseudo,
-            email: user.email,
-            isOnline: false, // Par défaut, l'utilisateur est hors ligne
-            lastSeen: new Date().toISOString() // Ajouter une date de dernière connexion
+  
+        if (user) {
+          return user.updateProfile({
+            displayName: pseudo
           }).then(() => {
-            return userCredential; // Retourner les informations de l'utilisateur
+            return this.db.object(`/users/${user.uid}`).set({
+              displayName: pseudo,
+              email: user.email,
+              isOnline: false,
+              lastSeen: new Date().toISOString()
+            });
           });
-        });
+        } else {
+          throw new Error('User not defined');
+        }
+      })
+      .catch(error => {
+        console.error('Error signing up:', error);
+        return Promise.reject(error);
       });
   }
+  
 
   // Sign out
   signOut() {
