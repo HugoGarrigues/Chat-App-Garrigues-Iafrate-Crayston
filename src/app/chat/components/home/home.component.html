@@ -1,0 +1,27 @@
+<h1>Bienvenue</h1>
+<div>
+    <button routerLink="/auth/login">Login</button>
+    <button routerLink="/auth/register">Register</button>
+</div>
+
+<div *ngIf="user; else noUser">
+  <h2>Welcome, {{ user.displayName || user.email }}!</h2>
+</div>
+
+<ng-template #noUser>
+  <h2>Please log in or register.</h2>
+</ng-template>
+
+<div class="container">
+  <div class="chat-container">
+    <div class="messages">
+      <div *ngFor="let msg of messages" class="alert alert-info">
+        <strong>{{ msg.displayName }}:</strong> {{ msg.message }}
+      </div>
+    </div>
+    <div class="input-container">
+      <input type="text" [(ngModel)]="message" class="form-control" placeholder="Type your message..." (keydown.enter)="sendMessage()">
+      <button class="btn btn-primary" (click)="sendMessage()">Send</button>
+    </div>
+  </div>
+</div>
