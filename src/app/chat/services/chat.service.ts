@@ -85,16 +85,28 @@ export class ChatService {
   // Récupérer les groupes d'un utilisateur
   getUserGroups(userId: string): Observable<any[]> {
     return this.db.list('/groups', ref => ref.orderByChild(`members/${userId}`).equalTo(true)).snapshotChanges().pipe(
-      map(actions => 
-        actions.map(a => {
-          const group = a.payload.val() as any;
-          group.key = a.key;
-          group.members = group.members ? Object.keys(group.members) : [];  // Transforme les membres en tableau d'IDs
-          return group;
-        })
-      )
+      map(actions => actions.map(a => {
+        const group = a.payload.val() as any;
+        group.key = a.key;
+  
+        // Récupérer les IDs des membres
+        const memberIds = group.members ? Object.keys(group.members) : [];
+        group.membersDisplayNames = [];
+  
+        // Pour chaque membre, récupérer son displayName depuis la base de données
+        memberIds.forEach(memberId => {
+          this.db.object(`/users/${memberId}`).valueChanges().subscribe((user: any) => {
+            if (user && user.displayName) {
+              group.membersDisplayNames.push(user.displayName);
+            }
+          });
+        });
+  
+        return group;
+      }))
     );
   }
+  
   
   // Récupérer les messages d'un groupe
   getGroupMessages(groupId: string): Observable<any[]> {
@@ -134,8 +146,21 @@ export class ChatService {
   }
 
   // Supprimer un membre d'un groupe
-  removeMemberFromGroup(groupId: string, memberId: string) {
+  removeMemberFromGroup(groupId: string, memberId: string): Promise<void> {
     return this.db.object(`/groups/${groupId}/members/${memberId}`).remove();
   }
+
+  getUserByName(displayName: string): Observable<any> {
+    return this.db.list('/users', ref => ref.orderByChild('displayName').equalTo(displayName)).snapshotChanges().pipe(
+      map(actions => {
+        const users = actions.map(a => ({
+          uid: a.key,
+          ...a.payload.val() as any
+        }));
+        return users.length > 0 ? users[0] : null;  // Retourne le premier utilisateur trouvé ou null
+      })
+    );
+  }
+  
 
 }

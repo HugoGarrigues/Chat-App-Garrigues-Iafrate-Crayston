@@ -27,6 +27,8 @@ export class HomeComponent implements OnInit {
   groupMessage: string = '';
   groupName: string = '';
   userToAdd: string = '';  // Pour ajouter un utilisateur au groupe
+  newMemberName: string = '';  // Saisie du nom du membre à ajouter
+
 
 
   constructor(
@@ -151,15 +153,48 @@ addMember() {
   }
 }
 
-// Supprimer un membre du groupe sélectionné
-removeMember(memberId: string) {
-  if (this.selectedGroup) {
-    console.log('Removing member:', memberId, 'from group:', this.selectedGroup.key);  // Debug info
-    this.chatService.removeMemberFromGroup(this.selectedGroup.key, memberId).then(() => {
-      console.log('Membre supprimé avec succès');
-    }).catch(error => {
-      console.error('Erreur lors de la suppression du membre : ', error);
+signOut() {
+  this.authService.signOut().then(() => {
+    console.log('User signed out');
+    this.router.navigate(['/auth/login']); // Rediriger vers la page de login après la déconnexion
+  }).catch((error: any) => {
+    console.error('Sign out error', error);
+  });
+}
+
+removeMemberByName(displayName: string) {
+  // Rechercher l'utilisateur par son displayName
+  this.chatService.getUserByName(displayName).subscribe(user => {
+    if (user) {
+      this.chatService.removeMemberFromGroup(this.selectedGroup.key, user.uid).then(() => {
+        console.log(`${displayName} supprimé du groupe ${this.selectedGroup.name}`);
+      }).catch(error => {
+        console.error('Erreur lors de la suppression du membre : ', error);
+      });
+    } else {
+      console.error('Utilisateur non trouvé');
+    }
+  });
+}
+
+
+addMemberByName() {
+  if (this.newMemberName.trim() !== '') {
+    this.chatService.getUserByName(this.newMemberName).subscribe(user => {
+      if (user) {
+        // Ajouter l'utilisateur au groupe sélectionné
+        this.chatService.addMemberToGroup(this.selectedGroup.key, user.uid).then(() => {
+          console.log(`${user.displayName} ajouté au groupe ${this.selectedGroup.name}`);
+          this.newMemberName = '';  // Réinitialiser le champ de saisie
+        }).catch(error => {
+          console.error('Erreur lors de l\'ajout du membre : ', error);
+        });
+      } else {
+        console.error('Utilisateur non trouvé');
+      }
     });
   }
 }
+
+
 }
