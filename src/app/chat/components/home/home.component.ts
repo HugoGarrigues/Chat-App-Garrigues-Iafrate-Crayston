@@ -18,6 +18,7 @@ export class HomeComponent implements OnInit {
   privateMessages: any[] = [];  // Stocker les messages privés
   onlineUsers: any[] = [];  // Stocker les utilisateurs en ligne
   selectedUser: any = null;  // Utilisateur sélectionné pour la messagerie privée
+  offlineUsers: any[] = [];  // Stocker les utilisateurs hors ligne
 
   constructor(
     private afAuth: AngularFireAuth,
@@ -31,13 +32,14 @@ export class HomeComponent implements OnInit {
     this.afAuth.authState.subscribe(user => {
       if (user) {
         this.user = user;
-        this.displayName = user.displayName ? user.displayName : user.email || 'Anonymous';  // Afficher pseudo ou email ou "Anonymous"
+        this.displayName = user.displayName ? user.displayName : user.email || 'Anonymous';
         console.log("User : ", this.displayName);
         this.loadOnlineUsers();  // Charger les utilisateurs en ligne
+        this.loadOfflineUsers();  // Charger les utilisateurs hors ligne
         
         // Mettre à jour l'état en ligne de l'utilisateur
         this.chatService.setUserOnline(user.uid);
-
+  
         // Récupérer les messages de chat général
         this.chatService.getMessages('general').subscribe(messages => {
           this.messages = messages;
@@ -49,13 +51,21 @@ export class HomeComponent implements OnInit {
       }
     });
   }
-
+  
   loadOnlineUsers() {
     // Récupérer les utilisateurs en ligne depuis Firebase
     this.chatService.getOnlineUsers().subscribe(users => {
         this.onlineUsers = users.filter(u => u.uid !== this.user.uid);  // Ne pas inclure l'utilisateur connecté
         console.log("Online users:", this.onlineUsers); // Ajoute un log pour voir les utilisateurs en ligne
     });
+}
+
+loadOfflineUsers() {
+  // Récupérer les utilisateurs hors ligne depuis Firebase
+  this.chatService.getOfflineUsers().subscribe(users => {
+    this.offlineUsers = users.filter(u => u.uid !== this.user.uid);  // Ne pas inclure l'utilisateur connecté
+    console.log("Offline users:", this.offlineUsers); // Ajoute un log pour voir les utilisateurs hors ligne
+  });
 }
 
     // Fonction pour déconnecter l'utilisateur

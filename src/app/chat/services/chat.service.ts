@@ -36,6 +36,18 @@ getOnlineUsers(): Observable<any[]> {
   );
 }
 
+// Récupérer les utilisateurs hors ligne
+getOfflineUsers(): Observable<any[]> {
+  return this.db.list('/users', ref => ref.orderByChild('isOnline').equalTo(false)).snapshotChanges().pipe(
+    map(actions => 
+      actions.map(a => ({
+        uid: a.key,  // Ajoute ici l'uid de l'utilisateur
+        ...a.payload.val() as any  // Récupère les autres propriétés
+      }))
+    )
+  );
+}
+
   sendPrivateMessage(text: string, senderId: string, receiverId: string) {
     const privateChatId = this.getPrivateChatId(senderId, receiverId);
     console.log(`Private chat ID: ${privateChatId}, sender ID: ${senderId}, receiver ID: ${receiverId}`);

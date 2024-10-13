@@ -13,6 +13,13 @@
       {{ onlineUser.displayName || onlineUser.email }}
     </li>
   </ul>
+  <h3>Users Offline</h3>
+<ul>
+  <li *ngFor="let offlineUser of offlineUsers" (click)="selectUser(offlineUser)">
+    {{ offlineUser.displayName || offlineUser.email }}
+  </li>
+</ul>
+
 
   <div *ngIf="selectedUser">
     <h3>Chat with {{ selectedUser.displayName || selectedUser.email }}</h3>
