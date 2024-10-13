@@ -24,42 +24,39 @@ export class ChatService {
     });
   }
 
-// Récupérer les utilisateurs en ligne
-getOnlineUsers(): Observable<any[]> {
-  return this.db.list('/users', ref => ref.orderByChild('isOnline').equalTo(true)).snapshotChanges().pipe(
-    map(actions => 
-      actions.map(a => ({
-        uid: a.key,  // Ajoute ici l'uid de l'utilisateur
-        ...a.payload.val() as any  // Récupère les autres propriétés
-      }))
-    )
-  );
-}
+  // Récupérer les utilisateurs en ligne, exclure l'utilisateur connecté
+  getOnlineUsers(currentUserId: string): Observable<any[]> {
+    return this.db.list('/users', ref => ref.orderByChild('isOnline').equalTo(true)).snapshotChanges().pipe(
+      map(actions => 
+        actions.map(a => ({
+          uid: a.key,
+          ...a.payload.val() as any
+        })).filter(user => user.uid !== currentUserId) // Exclure l'utilisateur connecté
+      )
+    );
+  }
 
-// Récupérer les utilisateurs hors ligne
-getOfflineUsers(): Observable<any[]> {
-  return this.db.list('/users', ref => ref.orderByChild('isOnline').equalTo(false)).snapshotChanges().pipe(
-    map(actions => 
-      actions.map(a => ({
-        uid: a.key,  // Ajoute ici l'uid de l'utilisateur
-        ...a.payload.val() as any  // Récupère les autres propriétés
-      }))
-    )
-  );
-}
+  // Récupérer les utilisateurs hors ligne
+  getOfflineUsers(): Observable<any[]> {
+    return this.db.list('/users', ref => ref.orderByChild('isOnline').equalTo(false)).snapshotChanges().pipe(
+      map(actions => 
+        actions.map(a => ({
+          uid: a.key,
+          ...a.payload.val() as any
+        }))
+      )
+    );
+  }
 
   sendPrivateMessage(text: string, senderId: string, receiverId: string) {
     const privateChatId = this.getPrivateChatId(senderId, receiverId);
-    console.log(`Private chat ID: ${privateChatId}, sender ID: ${senderId}, receiver ID: ${receiverId}`);
-    
     return this.db.list(`/messages/private/${privateChatId}`).push({
         text: text,
         senderId: senderId,
         receiverId: receiverId,
         createdAt: new Date().toISOString()
     });
-}
-
+  }
 
   // Récupérer les messages privés entre deux utilisateurs
   getPrivateMessages(userId1: string, userId2: string): Observable<any[]> {
@@ -68,22 +65,65 @@ getOfflineUsers(): Observable<any[]> {
   }
 
   private getPrivateChatId(userId1: string, userId2: string): string {
-    // Crée une clé unique pour les messages privés
     return userId1 < userId2 ? `${userId1}_${userId2}` : `${userId2}_${userId1}`;
-}
-
+  }
 
   setUserOnline(userId: string) {
     return this.db.object(`/users/${userId}`).update({ 
       isOnline: true, 
-      lastSeen: null // On peut enlever la dernière connexion s'il est en ligne 
+      lastSeen: null 
     });
   }
 
   setUserOffline(userId: string) {
     return this.db.object(`/users/${userId}`).update({ 
       isOnline: false, 
-      lastSeen: new Date().toISOString() // Mettre à jour la dernière connexion
+      lastSeen: new Date().toISOString() 
     });
   }
+
+  // Récupérer les groupes d'un utilisateur
+  getUserGroups(userId: string): Observable<any[]> {
+    return this.db.list('/groups', ref => ref.orderByChild('members/' + userId).equalTo(true)).snapshotChanges().pipe(
+      map(actions => 
+        actions.map(a => ({
+          key: a.key,
+          ...a.payload.val() as any
+        }))
+      )
+    );
+  }
+
+  // Récupérer les messages d'un groupe
+  getGroupMessages(groupId: string): Observable<any[]> {
+    return this.db.list(`/groups/${groupId}/messages`).valueChanges();
+  }
+
+  // Envoyer un message à un groupe
+  sendGroupMessage(text: string, senderId: string, groupId: string) {
+    const groupMessagesRef = this.db.list(`/groups/${groupId}/messages`);
+    return groupMessagesRef.push({
+      text: text,
+      senderId: senderId,
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  // Créer un groupe
+  createGroup(name: string, userId: string): Promise<string> {
+    const groupRef = this.db.list('/groups');
+    const newGroupKey = groupRef.push({ name: name, members: { [userId]: true } }).key;
+
+    if (newGroupKey) {
+      return Promise.resolve(newGroupKey);
+    } else {
+      return Promise.reject('Erreur lors de la création du groupe : ID de groupe introuvable.');
+    }
+  }
+
+  // Supprimer un groupe
+  deleteGroup(groupId: string) {
+    return this.db.object(`/groups/${groupId}`).remove();
+  }
+
 }

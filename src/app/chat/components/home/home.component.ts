@@ -20,6 +20,13 @@ export class HomeComponent implements OnInit {
   selectedUser: any = null;  // Utilisateur sélectionné pour la messagerie privée
   offlineUsers: any[] = [];  // Stocker les utilisateurs hors ligne
 
+  // Propriétés pour la gestion des groupes
+  groups: any[] = [];
+  selectedGroup: any = null;
+  groupMessages: any[] = [];
+  groupMessage: string = '';
+  groupName: string = '';
+
   constructor(
     private afAuth: AngularFireAuth,
     private chatService: ChatService,
@@ -35,10 +42,10 @@ export class HomeComponent implements OnInit {
         this.displayName = user.displayName ? user.displayName : user.email || 'Anonymous';
         console.log("User : ", this.displayName);
         this.loadUsers();  // Charger les utilisateurs hors ligne
-        
+        this.loadUserGroups(user.uid);
         // Mettre à jour l'état en ligne de l'utilisateur
         this.chatService.setUserOnline(user.uid);
-  
+
         // Récupérer les messages de chat général
         this.chatService.getMessages('general').subscribe(messages => {
           this.messages = messages;
@@ -51,65 +58,78 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  
-  
-  loadUsers() {
-    // Récupérer les utilisateurs en ligne et hors ligne depuis Firebase
-    this.chatService.getOnlineUsers().subscribe(users => {
-      this.onlineUsers = users.filter(u => u.uid !== this.user.uid);  // Ne pas inclure l'utilisateur connecté
-      console.log("Online users:", this.onlineUsers); // Ajoute un log pour voir les utilisateurs en ligne
-    });
-
-    this.chatService.getOfflineUsers().subscribe(users => {
-      this.offlineUsers = users.filter(u => u.uid !== this.user.uid);  // Ne pas inclure l'utilisateur connecté
-      console.log("Offline users:", this.offlineUsers); // Ajoute un log pour voir les utilisateurs hors ligne
+  loadUserGroups(userId: string) {
+    this.chatService.getUserGroups(userId).subscribe(groups => {
+      this.groups = groups;
     });
   }
 
-    // Fonction pour déconnecter l'utilisateur
-    signOut() {
-      this.authService.signOut().then(() => {
-        console.log('User signed out');
-        this.router.navigate(['/auth/login']); // Rediriger vers la page de login après la déconnexion
-      }).catch((error: any) => {
-        console.error('Sign out error', error);
+  selectGroup(group: any) {
+    this.selectedGroup = group;
+    this.loadGroupMessages(group.key);
+  }
+
+  loadGroupMessages(groupId: string) {
+    this.chatService.getGroupMessages(groupId).subscribe(messages => {
+      this.groupMessages = messages;
+    });
+  }
+
+  sendGroupMessage() {
+    if (this.groupMessage.trim() !== '' && this.selectedGroup) {
+      this.chatService.sendGroupMessage(this.groupMessage, this.user.uid, this.selectedGroup.key);
+      this.groupMessage = '';
+    }
+  }
+
+  createGroup() {
+    if (this.groupName.trim() !== '') {
+      this.chatService.createGroup(this.groupName, this.user.uid).then(() =>{
+        this.groupName = '';  // Réinitialiser le champ de nom de groupe
+      }).catch(error => {
+        console.error('Erreur lors de la création du groupe : ', error);
       });
     }
+  }
 
+  deleteGroup(groupId: string) {
+    this.chatService.deleteGroup(groupId).then(() => {
+      console.log('Groupe supprimé avec succès');
+    }).catch(error => {
+      console.error('Erreur lors de la suppression du groupe : ', error);
+    });
+  }
 
-selectUser(user: any) {
-  this.selectedUser = user;  // Définir l'utilisateur sélectionné pour la messagerie privée
-  console.log("Selected user:", this.selectedUser); // Ajoute ce log pour vérifier les propriétés
-  this.loadPrivateMessages(user.uid);  // Charger les messages privés échangés avec l'utilisateur sélectionné
-}
+  loadUsers() {
+    this.chatService.getOnlineUsers(this.user.uid).subscribe(users => {
+      this.onlineUsers = users;
+    });
+  
+    this.chatService.getOfflineUsers().subscribe(users => {
+      this.offlineUsers = users;
+    });
+  }
+  
 
+  sendMessage() {
+    if (this.message.trim() !== '') {
+      this.chatService.sendMessage(this.message, this.user.uid, this.displayName, 'general');
+      this.message = '';
+    }
+  }
 
-
-  loadPrivateMessages(userId: string) {
-    // Récupérer les messages privés avec l'utilisateur sélectionné
-    this.chatService.getPrivateMessages(this.user.uid, userId).subscribe(messages => {
+  selectUser(user: any) {
+    this.selectedUser = user;
+    this.chatService.getPrivateMessages(this.user.uid, user.uid).subscribe(messages => {
       this.privateMessages = messages;
     });
   }
 
-  sendMessage() {
-    if (this.message.trim() !== '') {
-      this.chatService.sendMessage(this.message, this.user.uid, this.displayName, 'general');  // Envoyer le message général
-      this.message = '';  // Réinitialiser le champ de message après l'envoi
-    }
-  }
-
   sendPrivateMessage() {
     if (this.privateMessage.trim() !== '' && this.selectedUser) {
-      console.log("Sending private message:", this.privateMessage, "from", this.user.uid, "to", this.selectedUser.uid); // Ajoute ce log
-      this.chatService.sendPrivateMessage(this.privateMessage, this.user.uid, this.selectedUser.uid);  // Envoyer le message privé
-      this.privateMessage = '';  // Réinitialiser le champ de message privé après l'envoi
+      this.chatService.sendPrivateMessage(this.privateMessage, this.user.uid, this.selectedUser.uid);
+      this.privateMessage = '';
     }
   }
 
-  quitChat() {
-    this.selectedUser = null;  // Quitter le chat avec l'utilisateur sélectionné
-    this.privateMessages = [];  // Réinitialiser les messages privés
-    console.log("Quitting chat with", this.selectedUser);
-  }
-}  
+}

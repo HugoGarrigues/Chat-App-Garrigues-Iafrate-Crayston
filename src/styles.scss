@@ -1,1 +1,32 @@
 @import "bootstrap/scss/bootstrap";
+
+.container {
+    background-color: #f8f9fa; // Couleur de fond claire
+    border-radius: 5px; // Arrondi des coins
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Ombre légère
+  }
+  
+  h1 {
+    color: #343a40; // Couleur sombre pour le titre principal
+  }
+  
+  h2 {
+    color: #007bff; // Couleur primaire pour les sous-titres
+  }
+  
+  .list-group-item {
+    transition: background-color 0.3s; // Animation de fond
+    &:hover {
+      background-color: #e9ecef; // Couleur de fond au survol
+    }
+  }
+  
+  .input-group {
+    margin-top: 1rem; // Espacement pour les champs d'entrée
+  }
+  
+  // Optionnel : Personnalisez les boutons
+  .btn {
+    font-weight: bold;
+  }
+  
