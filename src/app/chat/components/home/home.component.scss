@@ -1,39 +1,17 @@
+.user-welcome {
+  margin-bottom: 30px;
+}
+
+.private-messages {
+  background-color: #f8f9fa; /* Light background for private messages */
+  border-radius: 0.5rem;
+}
+
 .chat-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  
-  .messages {
-    flex: 1;
-    overflow-y: scroll;
-    padding: 20px;
-  }
-  
-  .message {
-    margin-bottom: 20px;
-  }
-  
-  .input-container {
-    display: flex;
-    align-items: center;
-    padding: 20px;
-  }
-  
-  input[type="text"] {
-    flex: 1;
-    border: none;
-    border-bottom: 1px solid #ccc;
-    padding: 10px;
-    font-size: 16px;
-  }
-  
-  button {
-    margin-left: 20px;
-    padding: 10px;
-    font-size: 16px;
-    background: #0084ff;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
+  margin-top: 30px;
+}
+
+.messages {
+  background-color: #f8f9fa; /* Light background for general chat */
+  border-radius: 0.5rem;
+}

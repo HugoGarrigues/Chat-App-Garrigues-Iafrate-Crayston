@@ -34,8 +34,7 @@ export class HomeComponent implements OnInit {
         this.user = user;
         this.displayName = user.displayName ? user.displayName : user.email || 'Anonymous';
         console.log("User : ", this.displayName);
-        this.loadOnlineUsers();  // Charger les utilisateurs en ligne
-        this.loadOfflineUsers();  // Charger les utilisateurs hors ligne
+        this.loadUsers();  // Charger les utilisateurs hors ligne
         
         // Mettre à jour l'état en ligne de l'utilisateur
         this.chatService.setUserOnline(user.uid);
@@ -51,22 +50,21 @@ export class HomeComponent implements OnInit {
       }
     });
   }
-  
-  loadOnlineUsers() {
-    // Récupérer les utilisateurs en ligne depuis Firebase
-    this.chatService.getOnlineUsers().subscribe(users => {
-        this.onlineUsers = users.filter(u => u.uid !== this.user.uid);  // Ne pas inclure l'utilisateur connecté
-        console.log("Online users:", this.onlineUsers); // Ajoute un log pour voir les utilisateurs en ligne
-    });
-}
 
-loadOfflineUsers() {
-  // Récupérer les utilisateurs hors ligne depuis Firebase
-  this.chatService.getOfflineUsers().subscribe(users => {
-    this.offlineUsers = users.filter(u => u.uid !== this.user.uid);  // Ne pas inclure l'utilisateur connecté
-    console.log("Offline users:", this.offlineUsers); // Ajoute un log pour voir les utilisateurs hors ligne
-  });
-}
+  
+  
+  loadUsers() {
+    // Récupérer les utilisateurs en ligne et hors ligne depuis Firebase
+    this.chatService.getOnlineUsers().subscribe(users => {
+      this.onlineUsers = users.filter(u => u.uid !== this.user.uid);  // Ne pas inclure l'utilisateur connecté
+      console.log("Online users:", this.onlineUsers); // Ajoute un log pour voir les utilisateurs en ligne
+    });
+
+    this.chatService.getOfflineUsers().subscribe(users => {
+      this.offlineUsers = users.filter(u => u.uid !== this.user.uid);  // Ne pas inclure l'utilisateur connecté
+      console.log("Offline users:", this.offlineUsers); // Ajoute un log pour voir les utilisateurs hors ligne
+    });
+  }
 
     // Fonction pour déconnecter l'utilisateur
     signOut() {
@@ -107,5 +105,11 @@ selectUser(user: any) {
       this.chatService.sendPrivateMessage(this.privateMessage, this.user.uid, this.selectedUser.uid);  // Envoyer le message privé
       this.privateMessage = '';  // Réinitialiser le champ de message privé après l'envoi
     }
+  }
+
+  quitChat() {
+    this.selectedUser = null;  // Quitter le chat avec l'utilisateur sélectionné
+    this.privateMessages = [];  // Réinitialiser les messages privés
+    console.log("Quitting chat with", this.selectedUser);
   }
 }  

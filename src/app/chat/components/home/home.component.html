@@ -1,55 +1,71 @@
-<h1>Bienvenue</h1>
-<div>
-  <button routerLink="/auth/login">Login</button>
-  <button routerLink="/auth/register">Register</button>
-  <button (click)="signOut()" class="btn btn-danger">Logout</button>
-</div>
+<div class="container mt-5">
+  <h1 class="text-center">Bienvenue dans le Chat</h1>
 
-<div *ngIf="user; else noUser">
-  <h2>Welcome, {{ user.displayName || user.email }}!</h2>
-  <h3>Users Online</h3>
-  <ul>
-    <li *ngFor="let onlineUser of onlineUsers" (click)="selectUser(onlineUser)">
-      {{ onlineUser.displayName || onlineUser.email }}
-    </li>
-  </ul>
-  <h3>Users Offline</h3>
-<ul>
-  <li *ngFor="let offlineUser of offlineUsers" (click)="selectUser(offlineUser)">
-    {{ offlineUser.displayName || offlineUser.email }}
-  </li>
-</ul>
+  <div class="text-center mb-4">
+    <button *ngIf="!user" routerLink="/auth/login" class="btn btn-primary mx-2">Login</button>
+    <button *ngIf="!user" routerLink="/auth/register" class="btn btn-secondary mx-2">Register</button>
+    <button *ngIf="user" (click)="signOut()" class="btn btn-danger mx-2">Logout</button>
+  </div>
 
+  <div *ngIf="user; else noUser" class="user-welcome">
+    <h2>Bienvenue, {{ user.displayName || user.email }}!</h2>
 
-  <div *ngIf="selectedUser">
-    <h3>Chat with {{ selectedUser.displayName || selectedUser.email }}</h3>
-    <div class="private-messages">
-      <div *ngFor="let msg of privateMessages" class="alert alert-info">
-        <strong>{{ msg.displayName }}:</strong> {{ msg.text }}
+    <div class="row">
+      <div class="col-md-4">
+        <h3>Utilisateurs en ligne</h3>
+        <ul class="list-group">
+          <li 
+            *ngFor="let onlineUser of onlineUsers" 
+            class="list-group-item list-group-item-action" 
+            (click)="selectUser(onlineUser)">
+            {{ onlineUser.displayName || onlineUser.email }}
+          </li>
+        </ul>
+
+        <h3>Utilisateurs hors ligne</h3>
+        <ul class="list-group">
+          <li 
+            *ngFor="let offlineUser of offlineUsers" 
+            class="list-group-item list-group-item-secondary">
+            {{ offlineUser.displayName || offlineUser.email }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="col-md-8" *ngIf="selectedUser">
+        <h3>Chat avec {{ selectedUser.displayName || selectedUser.email }}</h3>
+        <div class="private-messages border p-3 mb-3" style="height: 300px; overflow-y: auto;">
+          <div *ngFor="let msg of privateMessages" class="alert alert-info">
+            <strong>{{ msg.displayName }}:</strong> {{ msg.text }}
+          </div>
+        </div>
+        <div class="input-container">
+          <div class="input-group">
+            <input type="text" [(ngModel)]="privateMessage" class="form-control" placeholder="Tapez votre message privé..." (keydown.enter)="sendPrivateMessage()">
+            <button class="btn btn-primary" (click)="sendPrivateMessage()">Envoyer</button>
+            <button class="btn btn-secondary" (click)="quitChat()">Quitter le chat</button>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="input-container">
-      <input type="text" [(ngModel)]="privateMessage" class="form-control" placeholder="Type your private message..." (keydown.enter)="sendPrivateMessage()">
-      <button class="btn btn-primary" (click)="sendPrivateMessage()">Send</button>
+  </div>
+
+  <ng-template #noUser>
+    <h2 class="text-danger">Veuillez vous connecter ou vous inscrire.</h2>
+  </ng-template>
+
+<div class="chat-container mt-5">
+  <h2>Chat Général</h2>
+  <div #messagesContainer class="messages border p-3" style="height: 300px; overflow-y: auto;">
+    <div *ngFor="let msg of messages" class="alert alert-info">
+      <strong>{{ msg.displayName }}:</strong> {{ msg.text }}
+    </div>
+  </div>
+  <div class="input-container">
+    <div class="input-group">
+      <input type="text" [(ngModel)]="message" class="form-control" placeholder="Tapez votre message..." (keydown.enter)="sendMessage()">
+      <button class="btn btn-primary" (click)="sendMessage()">Envoyer</button>
     </div>
   </div>
 </div>
 
-<ng-template #noUser>
-  <h2>Please log in or register.</h2>
-</ng-template>
-
-<div class="container">
-  <div class="chat-container">
-    <h2>General Chat</h2>
-    <div class="messages">
-      <div *ngFor="let msg of messages" class="alert alert-info">
-        <strong>{{ msg.displayName }}:</strong> {{ msg.text }}
-      </div>
-    </div>
-    <div class="input-container">
-      <input type="text" [(ngModel)]="message" class="form-control" placeholder="Type your message..." (keydown.enter)="sendMessage()">
-      <button class="btn btn-primary" (click)="sendMessage()">Send</button>
-    </div>
-  </div>
-</div>
