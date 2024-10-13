@@ -66,19 +66,20 @@ export class HomeComponent implements OnInit {
   loadUserGroups(userId: string) {
     this.chatService.getUserGroups(userId).subscribe(groups => {
       this.groups = groups;
+      
+      // Sélectionner automatiquement le premier groupe s'il est disponible
+      if (this.groups.length > 0) {
+        this.selectGroup(this.groups[0]);
+      }
     });
   }
+  
 
   selectGroup(group: any) {
-    // Vérifie si le groupe est déjà sélectionné
-    if (this.selectedGroup && this.selectedGroup.key === group.key) {
-      this.selectedGroup = null; // Désélectionner le groupe
-      this.groupMessages = []; // Effacer les messages du groupe
-    } else {
-      this.selectedGroup = group; // Sélectionner le groupe
-      this.loadGroupMessages(group.key); // Charger les messages du groupe
-    }
+    this.selectedGroup = group;  // Sélectionner directement le groupe
+    this.loadGroupMessages(group.key);  // Charger les messages du groupe
   }
+  
   
 
   loadGroupMessages(groupId: string) {
