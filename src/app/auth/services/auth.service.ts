@@ -6,7 +6,7 @@ import { AngularFireDatabase } from '@angular/fire/compat/database';  // Importe
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private afAuth: AngularFireAuth, private db: AngularFireDatabase) {}  // Ajouter db à la constructor
+  constructor(private afAuth: AngularFireAuth, private db: AngularFireDatabase) {}
 
   // Sign in with email and password
   signIn(email: string, password: string) {

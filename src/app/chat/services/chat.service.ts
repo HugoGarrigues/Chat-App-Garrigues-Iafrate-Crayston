@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/compat/database';
-import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,7 @@ export class ChatService {
   constructor(private db: AngularFireDatabase) {}
 
   // Récupérer les messages d'un chat spécifique
-  getMessages(chatId: string) {
+  getMessages(chatId: string): Observable<any[]> {
     return this.db.list(`/messages/${chatId}`).valueChanges();
   }
 
@@ -19,26 +19,35 @@ export class ChatService {
     this.db.list(`/messages/${chatId}`).push({
       text: text,
       senderId: uid,
-      displayName: displayName,  // Ajouter le pseudo directement au message
+      displayName: displayName,
       createdAt: new Date().toISOString()
     });
   }
 
-  // Récupérer les utilisateurs en ligne
-  getOnlineUsers(): Observable<any[]> {
-    return this.db.list('/users', ref => ref.orderByChild('isOnline').equalTo(true)).valueChanges();
-  }
+// Récupérer les utilisateurs en ligne
+getOnlineUsers(): Observable<any[]> {
+  return this.db.list('/users', ref => ref.orderByChild('isOnline').equalTo(true)).snapshotChanges().pipe(
+    map(actions => 
+      actions.map(a => ({
+        uid: a.key,  // Ajoute ici l'uid de l'utilisateur
+        ...a.payload.val() as any  // Récupère les autres propriétés
+      }))
+    )
+  );
+}
 
-  // Envoyer un message privé
   sendPrivateMessage(text: string, senderId: string, receiverId: string) {
     const privateChatId = this.getPrivateChatId(senderId, receiverId);
-    this.db.list(`/messages/private/${privateChatId}`).push({
-      text: text,
-      senderId: senderId,
-      receiverId: receiverId,
-      createdAt: new Date().toISOString()
+    console.log(`Private chat ID: ${privateChatId}, sender ID: ${senderId}, receiver ID: ${receiverId}`);
+    
+    return this.db.list(`/messages/private/${privateChatId}`).push({
+        text: text,
+        senderId: senderId,
+        receiverId: receiverId,
+        createdAt: new Date().toISOString()
     });
-  }
+}
+
 
   // Récupérer les messages privés entre deux utilisateurs
   getPrivateMessages(userId1: string, userId2: string): Observable<any[]> {
@@ -46,10 +55,11 @@ export class ChatService {
     return this.db.list(`/messages/private/${privateChatId}`).valueChanges();
   }
 
-  // Générer un ID de conversation privé basé sur les IDs des utilisateurs
   private getPrivateChatId(userId1: string, userId2: string): string {
+    // Crée une clé unique pour les messages privés
     return userId1 < userId2 ? `${userId1}_${userId2}` : `${userId2}_${userId1}`;
-  }
+}
+
 
   setUserOnline(userId: string) {
     return this.db.object(`/users/${userId}`).update({ 
@@ -57,12 +67,11 @@ export class ChatService {
       lastSeen: null // On peut enlever la dernière connexion s'il est en ligne 
     });
   }
-  
+
   setUserOffline(userId: string) {
     return this.db.object(`/users/${userId}`).update({ 
       isOnline: false, 
       lastSeen: new Date().toISOString() // Mettre à jour la dernière connexion
     });
   }
-  
 }
