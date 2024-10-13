@@ -4,6 +4,7 @@
     <button routerLink="/auth/register">Register</button>
 </div>
 
+<!-- Affichage conditionnel du nom de l'utilisateur connecté -->
 <div *ngIf="user; else noUser">
   <h2>Welcome, {{ user.displayName || user.email }}!</h2>
 </div>
@@ -12,11 +13,12 @@
   <h2>Please log in or register.</h2>
 </ng-template>
 
+<!-- Conteneur principal pour le chat général -->
 <div class="container">
   <div class="chat-container">
     <div class="messages">
       <div *ngFor="let msg of messages" class="alert alert-info">
-        <strong>{{ msg.displayName }}:</strong> {{ msg.message }}
+        <strong>{{ msg.displayName }}:</strong> {{ msg.text }}
       </div>
     </div>
     <div class="input-container">
@@ -25,3 +27,4 @@
     </div>
   </div>
 </div>
+

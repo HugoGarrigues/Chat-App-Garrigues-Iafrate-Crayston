@@ -1,0 +1,65 @@
+{
+  "users": {
+    "userId1": {
+      "email": "user1@example.com",
+      "displayName": "User One",
+      "isOnline": true
+    },
+    "userId2": {
+      "email": "user2@example.com",
+      "displayName": "User Two",
+      "isOnline": false
+    },
+    "userId3": {
+      "email": "user3@example.com",
+      "displayName": "User Three",
+      "isOnline": true
+    }
+  },
+  "messages": {
+    "general": {
+      "messageId1": {
+        "text": "Hello everyone!",
+        "senderId": "userId1",
+        "displayName": "User One"
+      },
+      "messageId2": {
+        "text": "Hi User One!",
+        "senderId": "userId2",
+        "displayName": "User Two"  
+      }
+    },
+    "private": {
+      "conversationId1": {
+        "messageId1": {
+          "text": "Hey, how are you?",
+          "senderId": "userId1",
+          "receiverId": "userId2",
+          "displayName": "User One"
+        },
+        "messageId2": {
+          "text": "I'm good, thanks!",
+          "senderId": "userId2",
+          "receiverId": "userId1",
+          "displayName": "User Two"
+        }
+      }
+    }
+  },
+  "groups": {
+    "groupId1": {
+      "name": "Group One",
+      "members": {
+        "userId1": true,
+        "userId2": true
+      }
+    },
+    "groupId2": {
+      "name": "Group Two",
+      "members": {
+        "userId1": true,
+        "userId3": true
+      }
+    }
+  }
+}

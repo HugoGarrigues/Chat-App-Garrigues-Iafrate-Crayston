@@ -13,6 +13,7 @@ export class HomeComponent implements OnInit {
   displayName: string = '';  // Stocker le pseudo ou l'email à afficher
   message = '';
   messages: any[] = [];
+  
 
   constructor(
     private afAuth: AngularFireAuth,
@@ -30,7 +31,7 @@ export class HomeComponent implements OnInit {
     });
 
     // Récupérer les messages de chat
-    this.chatService.getMessages().subscribe(messages => {
+    this.chatService.getMessages('general').subscribe(messages => {
       this.messages = messages;
       console.log(this.messages);
     });
@@ -38,7 +39,7 @@ export class HomeComponent implements OnInit {
 
   sendMessage() {
     if (this.message.trim() !== '') {
-      this.chatService.sendMessage(this.message, this.user?.uid, this.displayName);  // Envoyer le message, l'UID et le pseudo
+      this.chatService.sendMessage(this.message, this.user?.uid, this.displayName, 'general');  // Envoyer le message, l'UID et le pseudo 
       this.message = '';  // Réinitialiser le champ de message après l'envoi
     }
   }
