@@ -2,6 +2,7 @@
 <div>
   <button routerLink="/auth/login">Login</button>
   <button routerLink="/auth/register">Register</button>
+  <button (click)="signOut()" class="btn btn-danger">Logout</button>
 </div>
 
 <div *ngIf="user; else noUser">

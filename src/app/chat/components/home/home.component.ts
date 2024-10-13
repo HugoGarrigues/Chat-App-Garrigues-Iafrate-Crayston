@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ChatService } from '../../services/chat.service';
+import { AuthService } from '../../../auth/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -19,7 +21,9 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private afAuth: AngularFireAuth,
-    private chatService: ChatService
+    private chatService: ChatService,
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -53,6 +57,16 @@ export class HomeComponent implements OnInit {
         console.log("Online users:", this.onlineUsers); // Ajoute un log pour voir les utilisateurs en ligne
     });
 }
+
+    // Fonction pour déconnecter l'utilisateur
+    signOut() {
+      this.authService.signOut().then(() => {
+        console.log('User signed out');
+        this.router.navigate(['/auth/login']); // Rediriger vers la page de login après la déconnexion
+      }).catch((error: any) => {
+        console.error('Sign out error', error);
+      });
+    }
 
 
 selectUser(user: any) {
