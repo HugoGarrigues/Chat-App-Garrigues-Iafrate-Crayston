@@ -70,13 +70,14 @@ export class HomeComponent implements OnInit {
   }
 
   selectGroup(group: any) {
-    this.selectedGroup = group;
-  
-    // Charger les messages du groupe sélectionné
-    this.loadGroupMessages(group.key);
-  
-    // Charger les membres du groupe (qui sont maintenant des IDs)
-    this.selectedGroup.members = group.members;
+    // Vérifie si le groupe est déjà sélectionné
+    if (this.selectedGroup && this.selectedGroup.key === group.key) {
+      this.selectedGroup = null; // Désélectionner le groupe
+      this.groupMessages = []; // Effacer les messages du groupe
+    } else {
+      this.selectedGroup = group; // Sélectionner le groupe
+      this.loadGroupMessages(group.key); // Charger les messages du groupe
+    }
   }
   
 
