@@ -53,8 +53,12 @@
         <div *ngIf="selectedGroup && selectedGroup.key === group.key" class="mt-2">
           <h4>Membres du groupe :</h4>
           <ul class="list-group">
-            <li *ngFor="let member of group.members" class="list-group-item">{{ member }}</li>
+            <li *ngFor="let memberId of selectedGroup.members" class="list-group-item">
+              {{ memberId }}
+              <button class="btn btn-danger btn-sm float-end" (click)="removeMember(memberId)">Supprimer</button>
+            </li>
           </ul>
+          
         </div>
       </div>
     </div>
@@ -75,3 +79,10 @@
     </div>
   </div>
 </div>
+
+
+<div class="input-group mb-3">
+  <input [(ngModel)]="userToAdd" class="form-control" placeholder="ID de l'utilisateur à ajouter" />
+  <button class="btn btn-primary" (click)="addMember()">Ajouter un membre</button>
+</div>
+

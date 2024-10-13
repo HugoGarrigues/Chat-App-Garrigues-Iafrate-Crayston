@@ -84,16 +84,18 @@ export class ChatService {
 
   // Récupérer les groupes d'un utilisateur
   getUserGroups(userId: string): Observable<any[]> {
-    return this.db.list('/groups', ref => ref.orderByChild('members/' + userId).equalTo(true)).snapshotChanges().pipe(
+    return this.db.list('/groups', ref => ref.orderByChild(`members/${userId}`).equalTo(true)).snapshotChanges().pipe(
       map(actions => 
-        actions.map(a => ({
-          key: a.key,
-          ...a.payload.val() as any
-        }))
+        actions.map(a => {
+          const group = a.payload.val() as any;
+          group.key = a.key;
+          group.members = group.members ? Object.keys(group.members) : [];  // Transforme les membres en tableau d'IDs
+          return group;
+        })
       )
     );
   }
-
+  
   // Récupérer les messages d'un groupe
   getGroupMessages(groupId: string): Observable<any[]> {
     return this.db.list(`/groups/${groupId}/messages`).valueChanges();
@@ -124,6 +126,16 @@ export class ChatService {
   // Supprimer un groupe
   deleteGroup(groupId: string) {
     return this.db.object(`/groups/${groupId}`).remove();
+  }
+
+  // Ajouter un membre à un groupe
+  addMemberToGroup(groupId: string, memberId: string) {
+    return this.db.object(`/groups/${groupId}/members/${memberId}`).set(true);
+  }
+
+  // Supprimer un membre d'un groupe
+  removeMemberFromGroup(groupId: string, memberId: string) {
+    return this.db.object(`/groups/${groupId}/members/${memberId}`).remove();
   }
 
 }

@@ -26,6 +26,8 @@ export class HomeComponent implements OnInit {
   groupMessages: any[] = [];
   groupMessage: string = '';
   groupName: string = '';
+  userToAdd: string = '';  // Pour ajouter un utilisateur au groupe
+
 
   constructor(
     private afAuth: AngularFireAuth,
@@ -66,8 +68,14 @@ export class HomeComponent implements OnInit {
 
   selectGroup(group: any) {
     this.selectedGroup = group;
+  
+    // Charger les messages du groupe sélectionné
     this.loadGroupMessages(group.key);
+  
+    // Charger les membres du groupe (qui sont maintenant des IDs)
+    this.selectedGroup.members = group.members;
   }
+  
 
   loadGroupMessages(groupId: string) {
     this.chatService.getGroupMessages(groupId).subscribe(messages => {
@@ -132,4 +140,26 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  // Ajouter un membre au groupe sélectionné
+addMember() {
+  if (this.selectedGroup && this.userToAdd.trim() !== '') {
+    this.chatService.addMemberToGroup(this.selectedGroup.key, this.userToAdd).then(() => {
+      this.userToAdd = '';  // Réinitialiser le champ d'ajout
+    }).catch(error => {
+      console.error('Erreur lors de l\'ajout du membre : ', error);
+    });
+  }
+}
+
+// Supprimer un membre du groupe sélectionné
+removeMember(memberId: string) {
+  if (this.selectedGroup) {
+    console.log('Removing member:', memberId, 'from group:', this.selectedGroup.key);  // Debug info
+    this.chatService.removeMemberFromGroup(this.selectedGroup.key, memberId).then(() => {
+      console.log('Membre supprimé avec succès');
+    }).catch(error => {
+      console.error('Erreur lors de la suppression du membre : ', error);
+    });
+  }
+}
 }
