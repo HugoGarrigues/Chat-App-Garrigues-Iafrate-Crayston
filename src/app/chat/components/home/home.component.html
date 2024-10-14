@@ -1,4 +1,4 @@
-<div class="container-fluid">
+<div class="container my-4 px-3"> <!-- Ajout de la classe container et des marges personnalisées -->
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1a1a1a; margin-bottom: 20px;">
     <div class="container-fluid">
@@ -13,8 +13,8 @@
   <h1 class="text-center mb-4">Bienvenue, {{ displayName }}</h1>
 
   <div class="row">
-    <!-- Partie Haute -->
-    <div class="col-md-4 left-panel">
+    <!-- Colonne de gauche (Utilisateurs en ligne, Utilisateurs hors ligne, Gestion des groupes) -->
+    <div class="col-md-3">
       <h2>Utilisateurs en ligne</h2>
       <ul class="list-group mb-4">
         <li *ngFor="let user of onlineUsers" class="list-group-item d-flex justify-content-between align-items-center">
@@ -29,42 +29,7 @@
           <span class="user-name">{{ user.displayName }}</span>
         </li>
       </ul>
-    </div>
 
-    <div class="col-md-8 chat-panel">
-      <div class="row">
-        <div class="col-md-6">
-          <h2>Messages généraux</h2>
-          <div class="border chat-box">
-            <div *ngFor="let msg of messages">
-              <strong class="user-name">{{ msg.displayName }}:</strong> {{ msg.text }}
-            </div>
-          </div>
-          <div class="input-group">
-            <input [(ngModel)]="message" class="form-control input-gray" placeholder="Envoyer un message" />
-            <button class="btn btn-success" (click)="sendMessage()">Envoyer</button>
-          </div>
-        </div>
-
-        <div class="col-md-6">
-          <h2 class="mt-4">Messages privés avec {{ selectedUser?.displayName }}</h2>
-          <div class="border chat-box">
-            <div *ngFor="let msg of privateMessages">
-              <strong class="user-name">{{ userNames[msg.senderId] || msg.senderId }}:</strong> {{ msg.text }}
-            </div>
-          </div>
-
-          <div class="input-group">
-            <input [(ngModel)]="privateMessage" class="form-control input-gray" placeholder="Envoyer un message privé" />
-            <button class="btn btn-success" (click)="sendPrivateMessage()">Envoyer</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row lower-panel">
-    <div class="col-md-4 group-management">
       <h2>Groupes</h2>
       <div class="list-group mb-4">
         <div *ngFor="let group of groups" class="list-group-item">
@@ -87,24 +52,50 @@
           </div>
         </div>
       </div>
-
-      <div class="input-group mb-4">
-        <input [(ngModel)]="groupName" class="form-control input-gray" placeholder="Nom du groupe" />
-        <button class="btn btn-primary" (click)="createGroup()">Créer un groupe</button>
-      </div>
     </div>
 
-    <div class="col-md-8 group-chat">
+    <!-- Colonne centrale (Chat général + Chat de groupe) -->
+    <div class="col-md-6">
+      <!-- Chat général -->
+      <h2>Messages généraux</h2>
+      <div class="border chat-box">
+        <div *ngFor="let msg of messages">
+          <strong class="user-name">{{ msg.displayName }}:</strong> {{ msg.text }}
+        </div>
+      </div>
+      <div class="input-group">
+        <input [(ngModel)]="message" class="form-control input-gray" placeholder="Envoyer un message" />
+        <button class="btn btn-success" (click)="sendMessage()">Envoyer</button>
+      </div>
+
+      <div class="input-group mb-4">
+        <input [(ngModel)]="groupName" class="form-control" placeholder="Nom du groupe" />
+        <button class="btn btn-primary" (click)="createGroup()">Créer un groupe</button>
+      </div>
+      <!-- Chat de groupe -->
       <h2 *ngIf="selectedGroup">Messages du groupe {{ selectedGroup?.name }}</h2>
       <div *ngIf="selectedGroup" class="border chat-box">
         <div *ngFor="let groupMsg of groupMessages">
           <strong class="user-name">{{ userNames[groupMsg.senderId] || groupMsg.senderId }}:</strong> {{ groupMsg.text }}
         </div>
       </div>
-
       <div *ngIf="selectedGroup" class="input-group">
         <input [(ngModel)]="groupMessage" class="form-control input-gray" placeholder="Envoyer un message au groupe" />
         <button class="btn btn-success" (click)="sendGroupMessage()">Envoyer</button>
+      </div>
+    </div>
+
+    <!-- Colonne de droite (Messages privés) -->
+    <div class="col-md-3">
+      <h2>Messages privés avec {{ selectedUser?.displayName }}</h2>
+      <div class="border chat-box">
+        <div *ngFor="let msg of privateMessages">
+          <strong class="user-name">{{ userNames[msg.senderId] || msg.senderId }}:</strong> {{ msg.text }}
+        </div>
+      </div>
+      <div class="input-group">
+        <input [(ngModel)]="privateMessage" class="form-control input-gray" placeholder="Envoyer un message privé" />
+        <button class="btn btn-success" (click)="sendPrivateMessage()">Envoyer</button>
       </div>
     </div>
   </div>

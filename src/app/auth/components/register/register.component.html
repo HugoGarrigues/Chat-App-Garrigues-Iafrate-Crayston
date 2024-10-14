@@ -1,20 +1,32 @@
-<div>
-    <h2>Register</h2>
-    <form (ngSubmit)="signUp()">
-      <label for="pseudo">Pseudo:</label>
-      <input type="text" id="pseudo" [(ngModel)]="pseudo" name="pseudo" required>
-  
-      <label for="email">Email:</label>
-      <input type="email" id="email" [(ngModel)]="email" name="email" required>
-  
-      <label for="password">Password:</label>
-      <input type="password" id="password" [(ngModel)]="password" name="password" required>
-  
-      <button type="submit">Sign Up</button>
-    </form>
+<div class="container d-flex justify-content-center align-items-center vh-100">
+  <div class="card shadow" style="width: 400px;">
+    <div class="card-body">
+      <h2 class="text-center mb-4">S'inscrire</h2>
+      
+      <!-- Formulaire d'inscription -->
+      <form (ngSubmit)="signUp()">
+        <div class="form-group mb-3">
+          <label for="pseudo">Pseudo</label>
+          <input type="text" id="pseudo" [(ngModel)]="pseudo" name="pseudo" class="form-control" placeholder="Entrez votre pseudo" required />
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="email">Email</label>
+          <input type="email" id="email" [(ngModel)]="email" name="email" class="form-control" placeholder="Entrez votre email" required />
+        </div>
+
+        <div class="form-group mb-3">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" [(ngModel)]="password" name="password" class="form-control" placeholder="Entrez votre mot de passe" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100"><a href="/home">S'inscrire</a></button>
+      </form>
+
+      <!-- Lien vers la page de connexion -->
+      <div class="text-center mt-3">
+        <p>Vous avez déjà un compte ? <a href="/auth/login">Se connecter</a></p>
+      </div>
+    </div>
   </div>
-  
-  
-  <div>
-    <a href="/auth/login">Login</a>
 </div>
